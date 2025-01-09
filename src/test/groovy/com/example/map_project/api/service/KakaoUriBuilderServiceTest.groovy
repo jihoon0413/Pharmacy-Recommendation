@@ -1,10 +1,10 @@
-package com.example.map_project.api.service;
+package com.example.map_project.api.service
 
-import spock.lang.Specification
+import com.example.map_project.AbstractIntegrationContainerBaseTest;
 
 import java.nio.charset.StandardCharsets;
 
-class KakaoUriBuilderServiceTest extends Specification {
+class KakaoUriBuilderServiceTest extends AbstractIntegrationContainerBaseTest {
 
     private KakaoUriBuilderService kakaoUriBuilderService;
 
