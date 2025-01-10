@@ -2,11 +2,12 @@ package com.example.map_project.pharmacy.service;
 
 import com.example.map_project.pharmacy.entity.Pharmacy;
 import com.example.map_project.pharmacy.repository.PharmacyRepository;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -27,8 +28,6 @@ public class PharmacyRepositoryService {
         }
 
         pharmacy.changePharmacyAddress(address);
-
-
     }
 
     public void updateAddressWithoutTransaction(Long id, String address) {
@@ -41,10 +40,12 @@ public class PharmacyRepositoryService {
         }
 
         pharmacy.changePharmacyAddress(address);
-
-
     }
 
+    @Transactional(readOnly = true)
+    public List<Pharmacy> findAll() {
+        return pharmacyRepository.findAll();
+    }
 
 
 }
