@@ -1,11 +1,8 @@
 package com.example.map_project.direction.controller
 
-import com.example.map_project.direction.dto.InputDto
 import com.example.map_project.direction.dto.OutputDto
 import com.example.map_project.pharmacy.service.PharmacyRecommendationService
-import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import spock.lang.Specification;
 
@@ -20,8 +17,9 @@ class FormControllerTest extends Specification{
     private List<OutputDto> outputDtoList
 
     def setup() {
+        // FormController MockMvc 객체로 만든다.
         mockMvc = MockMvcBuilders.standaloneSetup(new FormController(pharmacyRecommendationService))
-        .build()
+                .build()
 
         outputDtoList = new ArrayList<>()
         outputDtoList.addAll(
@@ -35,34 +33,37 @@ class FormControllerTest extends Specification{
     }
 
     def "GET /"() {
+
         expect:
-        mockMvc.perform (get("/"))
-                .andExpect (handler().handlerType(FormController.class))
+        // FormController 의 "/" URI를 get방식으로 호출
+        mockMvc.perform(get("/"))
+                .andExpect(handler().handlerType(FormController.class))
                 .andExpect(handler().methodName("main"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("main"))
-                .andDo (log())
+                .andExpect(status().isOk()) // 예상 값을 검증한다.
+                .andExpect(view().name("index"))
+                .andDo(log())
     }
 
     def "POST /search"() {
+
         given:
-        InputDto inputDto = new InputDto()
-        inputDto.setAddress("서울 성북구")
+        String inputAddress = "서울 성북구 종암동"
 
         when:
-        pharmacyRecommendationService.recommendPharmacyList("서울 성북구") >> outputDtoList
-        ResultActions result = mockMvc.perform(
-                post("/search")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(inputDto.toString()))
+        def resultActions = mockMvc.perform(post("/search")
+                .param("address", inputAddress))
 
         then:
-        result.andExpect(status().isOk())
+        1 * pharmacyRecommendationService.recommendPharmacyList(argument -> {
+            assert argument == inputAddress // mock 객체의 argument 검증
+        }) >> outputDtoList
+
+        resultActions
+                .andExpect(status().isOk())
                 .andExpect(view().name("output"))
-                .andExpect(model().attributeExists("outputFormList"))
+                .andExpect(model().attributeExists("outputFormList")) // model에 outputFormList라는 key가 존재하는지 확인
                 .andExpect(model().attribute("outputFormList", outputDtoList))
                 .andDo(print())
-
     }
 
 
