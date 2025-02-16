@@ -4,7 +4,6 @@ import com.example.map_project.api.dto.DocumentDto;
 import com.example.map_project.api.service.KakaoCategorySearchService;
 import com.example.map_project.direction.entity.Direction;
 import com.example.map_project.direction.repository.DirectionRepository;
-import com.example.map_project.pharmacy.dto.PharmacyDto;
 import com.example.map_project.pharmacy.service.PharmacySearchService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -56,20 +55,19 @@ public class DirectionService {
         if(Objects.isNull(documentDto)) return Collections.emptyList();
 
         return pharmacySearchService.searchPharmacyDtoList()
-                .stream().map(pharmacyDto -> Direction.builder()
-                        .inputAddress(documentDto.getAddressName())
-                        .inputLatitude(documentDto.getLatitude())
-                        .inputLongitude(documentDto.getLongitude())
-                        .targetAddress(pharmacyDto.getPharmacyAddress())
-                        .targetPharmacyName(pharmacyDto.getPharmacyName())
-                        .targetLatitude(pharmacyDto.getLatitude())
-                        .targetLongitude(pharmacyDto.getLongitude())
-                        .distance(
-                                calculateDistance(documentDto.getLatitude(), documentDto.getLongitude()
-                                        , pharmacyDto.getLatitude(), pharmacyDto.getLongitude())
-                        )
-                        .build()
-                )
+                .stream().map(pharmacyDto ->
+                        Direction.builder()
+                                .inputAddress(documentDto.getAddressName())
+                                .inputLatitude(documentDto.getLatitude())
+                                .inputLongitude(documentDto.getLongitude())
+                                .targetPharmacyName(pharmacyDto.getPharmacyName())
+                                .targetAddress(pharmacyDto.getPharmacyAddress())
+                                .targetLatitude(pharmacyDto.getLatitude())
+                                .targetLongitude(pharmacyDto.getLongitude())
+                                .distance(
+                                        calculateDistance(documentDto.getLatitude(), documentDto.getLongitude(),
+                                                pharmacyDto.getLatitude(), pharmacyDto.getLongitude()))
+                                .build())
                 .filter(direction -> direction.getDistance() <= RADIUS_KM)
                 .sorted(Comparator.comparing(Direction::getDistance))
                 .limit(MAX_SEARCH_COUNT)
